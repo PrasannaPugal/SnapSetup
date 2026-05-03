@@ -74,7 +74,7 @@ Open `index.html` in **Chrome** or **Edge**. Click the drop zone to select a fol
 
 ---
 
-## CLI Tool — project-to-setup.ps1
+## CLI Tool — SnapSetup.ps1
 
 ### Parameters
 
