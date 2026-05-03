@@ -44,9 +44,9 @@ SnapSetup is a set of three tools (CLI, GUI, and Web) that all do the same thing
 
 | File | Type | Platform | Requirements |
 |---|---|---|---|
-| `project-to-setup.ps1` | CLI | Windows | PowerShell 5.1+ |
-| `project-to-setup-ui.ps1` | GUI (WinForms) | Windows | PowerShell 5.1+ with .NET |
-| `project-to-setup.html` | Web App | Any | Chrome or Edge 86+ |
+| `SnapSetup.ps1` | CLI | Windows | PowerShell 5.1+ |
+| `SnapSetup.ps1` | GUI (WinForms) | Windows | PowerShell 5.1+ with .NET |
+| `index.html` | Web App | Any | Chrome or Edge 86+ |
 
 ---
 
@@ -55,7 +55,7 @@ SnapSetup is a set of three tools (CLI, GUI, and Web) that all do the same thing
 ### CLI
 
 ```powershell
-.\project-to-setup.ps1 -SourcePath "C:\Projects\MyApp"
+.\SnapSetup.ps1 -SourcePath "C:\Projects\MyApp"
 ```
 
 Generates `setup.ps1` and `setup.sh` in the current directory.
@@ -63,14 +63,14 @@ Generates `setup.ps1` and `setup.sh` in the current directory.
 ### GUI
 
 ```powershell
-.\project-to-setup-ui.ps1
+.\SnapSetup-ui.ps1
 ```
 
 A dark-themed Windows Forms window opens. Browse for your source folder, configure options, and click **Generate Setup Files**.
 
 ### Web App
 
-Open `project-to-setup.html` in **Chrome** or **Edge**. Click the drop zone to select a folder, then click **Generate Setup Files**.
+Open `index.html` in **Chrome** or **Edge**. Click the drop zone to select a folder, then click **Generate Setup Files**.
 
 ---
 
@@ -90,17 +90,17 @@ Open `project-to-setup.html` in **Chrome** or **Edge**. Click the drop zone to s
 
 **Basic usage:**
 ```powershell
-.\project-to-setup.ps1 -SourcePath "C:\Projects\MyApp"
+.\SnapSetup.ps1 -SourcePath "C:\Projects\MyApp"
 ```
 
 **Custom output directory and project name:**
 ```powershell
-.\project-to-setup.ps1 -SourcePath "C:\Projects\MyApp" -OutputDir "C:\Output" -ProjectName "my-app-v2"
+.\SnapSetup.ps1 -SourcePath "C:\Projects\MyApp" -OutputDir "C:\Output" -ProjectName "my-app-v2"
 ```
 
 **Exclude additional patterns and increase size limit:**
 ```powershell
-.\project-to-setup.ps1 -SourcePath "C:\Projects\MyApp" -ExcludePatterns @("*.env", "secrets/*") -MaxFileSizeMB 25
+.\SnapSetup.ps1 -SourcePath "C:\Projects\MyApp" -ExcludePatterns @("*.env", "secrets/*") -MaxFileSizeMB 25
 ```
 
 ### Output
