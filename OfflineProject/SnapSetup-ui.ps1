@@ -379,7 +379,7 @@ $fontMono    = New-Object System.Drawing.Font("Cascadia Mono,Consolas", 9)
 
 # --- Main Form ---
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Project to Setup"
+$form.Text = "SnapSetup"
 $form.Size = New-Object System.Drawing.Size(700, 720)
 $form.StartPosition = "CenterScreen"
 $form.BackColor = $bgDark
@@ -391,7 +391,7 @@ $form.MinimizeBox = $true
 
 # --- Title ---
 $lblTitle = New-Object System.Windows.Forms.Label
-$lblTitle.Text = "Project to Setup"
+$lblTitle.Text = "SnapSetup"
 $lblTitle.Font = $fontTitle
 $lblTitle.ForeColor = $fgAccent
 $lblTitle.Location = New-Object System.Drawing.Point(24, 16)
