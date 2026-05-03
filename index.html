@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapSetup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base: #09090b;
+  --bg-raised: #18181b;
+  --bg-overlay: #27272a;
+  --bg-input: #09090b;
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.15);
+  --border-focus: rgba(139,92,246,0.5);
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --accent-purple: #8b5cf6;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --accent-green: #22c55e;
+  --accent-orange: #f97316;
+  --accent-pink: #ec4899;
+  --gradient-primary: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+  --gradient-success: linear-gradient(135deg, #22c55e, #06b6d4);
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Animated Background */
+.bg-effects {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-effects::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.06) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 80%, rgba(6,182,212,0.05) 0%, transparent 50%);
+  animation: bgShift 20s ease-in-out infinite alternate;
+}
+
+@keyframes bgShift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-5%, 3%) scale(1.05); }
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(9,9,11,0.7);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2));
+}
+
+.logo svg { width: 20px; height: 20px; fill: white; position: relative; z-index: 1; }
+
+.header-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-tag {
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(139,92,246,0.15);
+  color: var(--accent-purple);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.help-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.help-btn:hover {
+  background: rgba(139,92,246,0.2);
+  color: var(--accent-purple);
+  border-color: var(--accent-purple);
+}
+
+/* Help Modal */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.help-overlay.visible { display: flex; }
+
+.help-modal {
+  background: #1a1a1f;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-lg);
+  max-width: 640px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 32px;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+}
+
+.help-modal::-webkit-scrollbar { width: 6px; }
+.help-modal::-webkit-scrollbar-track { background: transparent; }
+.help-modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.help-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.help-close:hover { background: rgba(239,68,68,0.2); color: #ef4444; border-color: #ef4444; }
+
+.help-modal h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #fafafa;
+}
+.help-modal .help-subtitle {
+  color: #a1a1aa;
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.help-modal h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fafafa;
+  margin: 22px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.help-modal h3 .h-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+.help-modal p, .help-modal li {
+  font-size: 0.85rem;
+  color: #d4d4d8;
+  line-height: 1.7;
+  margin: 0 0 8px;
+}
+.help-modal ul {
+  padding-left: 18px;
+  margin: 4px 0 12px;
+}
+.help-modal code {
+  font-size: 0.78rem;
+  background: rgba(56,189,248,0.12);
+  color: #38bdf8;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.help-modal hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+.help-modal .kbd {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--text-secondary);
+}
+
+/* Main */
+.main {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 20px 0 8px;
+}
+
+.hero h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  margin-top: 10px;
+  font-weight: 400;
+}
+
+.hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.hero-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dot-ps1 { background: var(--accent-blue); }
+.dot-sh { background: var(--accent-green); }
+.dot-safe { background: var(--accent-orange); }
+
+/* Cards */
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+.card-icon-purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+.card-icon-blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+.card-icon-cyan { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
+.card-icon-green { background: rgba(34,197,94,0.15); color: var(--accent-green); }
+
+.card-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Drop Zone */
+.drop-zone {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: 52px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--bg-base);
+  border: 1px dashed rgba(255,255,255,0.1);
+  overflow: hidden;
+}
+
+.drop-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 120%, rgba(139,92,246,0.06), transparent 60%);
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+
+.drop-zone:hover::before, .drop-zone.drag-over::before { opacity: 1; }
+
+.drop-zone:hover {
+  border-color: rgba(139,92,246,0.4);
+  box-shadow: 0 0 40px rgba(139,92,246,0.06);
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 60px rgba(139,92,246,0.1), inset 0 0 60px rgba(139,92,246,0.03);
+}
+
+.drop-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.drop-zone:hover .drop-icon { transform: translateY(-4px); }
+
+.drop-icon svg { width: 28px; height: 28px; stroke: var(--accent-purple); fill: none; stroke-width: 1.5; }
+
+.drop-title { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+
+.drop-hint { font-size: 0.82rem; color: var(--text-muted); }
+
+.drop-hint kbd {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  font-family: var(--font);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.selected-folder {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--accent-green);
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-folder.visible { display: flex; }
+.selected-folder svg { width: 16px; height: 16px; stroke: var(--accent-green); fill: none; flex-shrink: 0; }
+
+/* Form Inputs */
+.form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.form-group label span { color: var(--text-muted); font-weight: 400; }
+
+input[type="text"], input[type="number"], textarea {
+  width: 100%;
+  padding: 11px 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: var(--font);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.1), 0 0 20px rgba(139,92,246,0.05);
+}
+
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+textarea {
+  resize: vertical;
+  min-height: 88px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.form-hint {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+}
+
+.tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  font-family: var(--mono);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+/* Generate Button */
+.btn-generate {
+  position: relative;
+  width: 100%;
+  padding: 16px 32px;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #7c3aed, #6366f1, #3b82f6);
+  box-shadow: 0 4px 20px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.btn-generate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.btn-generate:hover:not(:disabled)::before { transform: translateX(100%); }
+
+.btn-generate:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.btn-generate:active:not(:disabled) { transform: translateY(0); }
+.btn-generate:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.btn-generate svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
+
+/* Progress */
+.progress-section { display: none; }
+.progress-section.visible { display: block; animation: slideUp 0.4s ease; }
+
+.progress-track {
+  height: 4px;
+  background: var(--bg-overlay);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: var(--gradient-primary);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  transition: width 0.4s ease;
+}
+
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.progress-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-label .spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-purple);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.stat-item {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.stat-item:hover { border-color: var(--border-hover); }
+
+.stat-number {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.stat-number.purple { color: var(--accent-purple); }
+.stat-number.blue { color: var(--accent-blue); }
+.stat-number.cyan { color: var(--accent-cyan); }
+.stat-number.green { color: var(--accent-green); }
+.stat-number.orange { color: var(--accent-orange); }
+
+.stat-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 6px;
+}
+
+/* Log */
+.log-box {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.8;
+  max-height: 280px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-box .l-info { color: var(--text-muted); }
+.log-box .l-ok { color: var(--accent-green); }
+.log-box .l-warn { color: var(--accent-orange); }
+.log-box .l-err { color: #ef4444; }
+.log-box .l-hl { color: var(--accent-purple); }
+
+/* Download Cards */
+.download-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.dl-card {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  transition: all 0.3s ease;
+}
+
+.dl-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.dl-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.dl-icon-ps1 { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2)); color: var(--accent-blue); }
+.dl-icon-sh { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(6,182,212,0.2)); color: var(--accent-green); }
+
+.dl-platform {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+
+.dl-platform-win { background: rgba(59,130,246,0.12); color: var(--accent-blue); }
+.dl-platform-unix { background: rgba(34,197,94,0.12); color: var(--accent-green); }
+
+.dl-filename { font-size: 1rem; font-weight: 600; font-family: var(--mono); }
+.dl-size { font-size: 0.8rem; color: var(--text-muted); }
+
+.dl-actions { display: flex; gap: 8px; width: 100%; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  flex: 1;
+}
+
+.btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; }
+
+.btn-dl { background: rgba(34,197,94,0.12); color: var(--accent-green); border-color: rgba(34,197,94,0.2); }
+.btn-dl:hover:not(:disabled) { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.35); transform: translateY(-1px); }
+
+.btn-copy { background: var(--bg-overlay); color: var(--text-primary); border-color: var(--border); }
+.btn-copy:hover:not(:disabled) { background: rgba(255,255,255,0.08); border-color: var(--border-hover); transform: translateY(-1px); }
+.btn-copy.copied { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: var(--accent-green); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.tip-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: rgba(249,115,22,0.06);
+  border: 1px solid rgba(249,115,22,0.15);
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  color: var(--accent-orange);
+  line-height: 1.6;
+}
+
+.tip-bar svg { width: 16px; height: 16px; stroke: var(--accent-orange); fill: none; flex-shrink: 0; margin-top: 2px; }
+
+.browser-notice {
+  display: none;
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  background: rgba(249,115,22,0.08);
+  border: 1px solid rgba(249,115,22,0.2);
+  font-size: 0.82rem;
+  color: var(--accent-orange);
+}
+
+.browser-notice.visible { display: block; }
+
+/* Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal { animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .main { padding: 24px 16px 60px; }
+  .hero h2 { font-size: 1.5rem; }
+  .form-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .download-grid { grid-template-columns: 1fr; }
+  .card { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-effects"></div>
+<div class="grid-overlay"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13,2 13,9 20,9" fill="none" stroke="white" stroke-width="1.5"/></svg>
+      </div>
+      <span class="header-title">SnapSetup</span>
+    </div>
+    <div class="header-right">
+      <span class="header-tag">v2.0</span>
+      <button class="help-btn" id="helpBtn" title="Help">?</button>
+    </div>
+  </div>
+</header>
+
+<!-- Help Modal -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-modal">
+    <button class="help-close" id="helpClose">&times;</button>
+    <h2>SnapSetup Help</h2>
+    <p class="help-subtitle">Everything you need to know about converting projects into portable setup scripts.</p>
+    <hr>
+
+    <h3><span class="h-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6">1</span> What is SnapSetup?</h3>
+    <p>SnapSetup scans a project folder in your browser and generates two self-contained scripts:</p>
+    <ul>
+      <li><code>setup.ps1</code> &mdash; PowerShell script for <strong>Windows</strong></li>
+      <li><code>setup.sh</code> &mdash; Bash script for <strong>macOS / Linux</strong></li>
+    </ul>
+    <p>Running either script recreates the full folder structure and all files &mdash; no zip, no installer, just one script.</p>
+
+    <h3><span class="h-icon" style="background:rgba(16,185,129,0.15);color:#10b981">2</span> How to Use</h3>
+    <ul>
+      <li><strong>Select folder</strong> &mdash; Click the drop zone or drag &amp; drop a folder onto it.</li>
+      <li><strong>Configure</strong> &mdash; Optionally set a project name, max file size, and exclude patterns.</li>
+      <li><strong>Generate</strong> &mdash; Click the <em>Generate Setup Files</em> button.</li>
+      <li><strong>Get output</strong> &mdash; Download or copy the generated scripts.</li>
+    </ul>
+
+    <h3><span class="h-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b">3</span> Options Explained</h3>
+    <ul>
+      <li><strong>Project Name</strong> &mdash; Defaults to the folder name. Used as the root directory when scripts are run.</li>
+      <li><strong>Max File Size</strong> &mdash; Files above this limit (in MB) are skipped. Default: <code>10 MB</code>.</li>
+      <li><strong>Exclude Patterns</strong> &mdash; One pattern per line. Files or folders matching these patterns are skipped.</li>
+    </ul>
+
+    <h3><span class="h-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">4</span> Default Exclusions</h3>
+    <p>These folders and files are always excluded:</p>
+    <ul>
+      <li><strong>Folders:</strong> <code>node_modules</code>, <code>.git</code>, <code>__pycache__</code>, <code>.venv</code>, <code>venv</code>, <code>dist</code>, <code>build</code>, <code>.vs</code>, <code>.vscode</code>, <code>.idea</code>, <code>bin</code>, <code>obj</code></li>
+      <li><strong>Files:</strong> <code>*.pyc</code>, <code>*.pyo</code>, <code>*.log</code>, <code>*.tmp</code>, <code>*.bak</code>, <code>Thumbs.db</code>, <code>.DS_Store</code></li>
+    </ul>
+
+    <h3><span class="h-icon" style="background:rgba(236,72,153,0.15);color:#ec4899">5</span> Copy vs Download</h3>
+    <p><strong>Copy to Clipboard</strong> is recommended. Paste into a locally-created file to avoid the Windows &ldquo;Mark of the Web&rdquo; security warning that blocks downloaded scripts.</p>
+    <p><strong>Download</strong> works too, but you may need to right-click the file &rarr; Properties &rarr; Unblock before running.</p>
+
+    <h3><span class="h-icon" style="background:rgba(239,68,68,0.15);color:#ef4444">6</span> Running the Scripts</h3>
+    <ul>
+      <li><strong>Windows:</strong> Open PowerShell, navigate to the script folder, then run <code>.\setup.ps1</code></li>
+      <li><strong>macOS/Linux:</strong> Open Terminal, run <code>chmod +x setup.sh</code> then <code>./setup.sh</code></li>
+    </ul>
+
+    <h3><span class="h-icon" style="background:rgba(20,184,166,0.15);color:#14b8a6">7</span> Browser Requirements</h3>
+    <p>SnapSetup uses the <strong>File System Access API</strong> to read folders. This requires <strong>Chrome</strong> or <strong>Edge</strong> (version 86+). Firefox and Safari are not supported.</p>
+
+    <hr>
+    <p style="text-align:center;color:var(--text-muted);font-size:0.78rem;margin:0">SnapSetup v2.0 &mdash; Press <span class="kbd">Esc</span> to close</p>
+  </div>
+</div>
+
+<main class="main">
+
+  <section class="hero">
+    <h2>Convert projects into<br>portable setup scripts</h2>
+    <p>Pick a folder, generate self-contained scripts. Copy, paste, run anywhere.</p>
+    <div class="hero-badges">
+      <span class="hero-badge"><span class="dot dot-ps1"></span> setup.ps1 for Windows</span>
+      <span class="hero-badge"><span class="dot dot-sh"></span> setup.sh for Linux / macOS / Termux</span>
+      <span class="hero-badge"><span class="dot dot-safe"></span> Zero dependencies</span>
+    </div>
+  </section>
+
+  <div class="browser-notice" id="browserNotice">
+    &#9888; Your browser doesn't support the File System Access API. Use <strong>Chrome</strong> or <strong>Edge</strong> for folder scanning.
+  </div>
+
+  <!-- Source Card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon card-icon-purple">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <span class="card-label">Source Folder</span>
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17,8 12,3 7,8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <div class="drop-title">Choose a project folder</div>
+      <div class="drop-hint">Click to browse or drag &amp; drop &bull; Requires <kbd>Chrome</kbd> or <kbd>Edge</kbd></div>
+    </div>
+    <div class="selected-folder" id="selectedPath">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span id="selectedPathText"></span>
+    </div>
+  </div>
+
+  <!-- Settings Card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon card-icon-blue">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <span class="card-label">Configuration</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="projectName">Project Name <span>(auto-detected)</span></label>
+        <input type="text" id="projectName" placeholder="e.g. my-trading-app">
+      </div>
+      <div class="form-group">
+        <label for="maxSize">Max File Size <span>(MB)</span></label>
+        <input type="number" id="maxSize" value="10" min="1" max="100">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:18px">
+      <label for="excludePatterns">Exclude Patterns <span>(one per line)</span></label>
+      <textarea id="excludePatterns" placeholder="*.log&#10;temp/*&#10;secrets.json"></textarea>
+    </div>
+    <div class="form-hint">
+      Built-in:
+      <span class="tag">node_modules</span>
+      <span class="tag">.git</span>
+      <span class="tag">__pycache__</span>
+      <span class="tag">dist</span>
+      <span class="tag">build</span>
+      <span class="tag">.venv</span>
+      <span class="tag">*.pyc</span>
+      <span class="tag">*.tmp</span>
+      <span style="color:var(--text-muted)">+ more</span>
+    </div>
+  </div>
+
+  <!-- Generate Button -->
+  <button class="btn-generate" id="btnGenerate" disabled>
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    Generate Setup Files
+  </button>
+
+  <!-- Progress -->
+  <div class="card progress-section" id="progressCard">
+    <div class="card-header">
+      <div class="card-icon card-icon-cyan">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </div>
+      <span class="card-label">Processing</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressBar"></div>
+    </div>
+    <div class="progress-label">
+      <div class="spinner"></div>
+      <span id="progressText">Scanning files...</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="card" id="statsCard" style="display:none">
+    <div class="card-header">
+      <div class="card-icon card-icon-green">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <span class="card-label">Scan Results</span>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-number purple" id="statTotal">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-item"><div class="stat-number blue" id="statText">0</div><div class="stat-label">Text</div></div>
+      <div class="stat-item"><div class="stat-number cyan" id="statBinary">0</div><div class="stat-label">Binary</div></div>
+      <div class="stat-item"><div class="stat-number green" id="statSize">0 B</div><div class="stat-label">Size</div></div>
+      <div class="stat-item"><div class="stat-number orange" id="statSkipped">0</div><div class="stat-label">Skipped</div></div>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="card" id="logCard" style="display:none">
+    <div class="card-header">
+      <div class="card-icon card-icon-blue">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </div>
+      <span class="card-label">Output Log</span>
+    </div>
+    <div class="log-box" id="logOutput"></div>
+  </div>
+
+  <!-- Downloads -->
+  <div class="card" id="downloadCard" style="display:none">
+    <div class="card-header">
+      <div class="card-icon card-icon-green">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <span class="card-label">Download &amp; Copy</span>
+    </div>
+    <div class="download-grid">
+      <div class="dl-card">
+        <div class="dl-icon dl-icon-ps1">PS</div>
+        <span class="dl-platform dl-platform-win">Windows PowerShell</span>
+        <div class="dl-filename">setup.ps1</div>
+        <div class="dl-size" id="ps1Size">&mdash;</div>
+        <div class="dl-actions">
+          <button class="btn btn-copy" id="btnCopyPs1" disabled>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button class="btn btn-dl" id="btnDownloadPs1" disabled>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save
+          </button>
+        </div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-icon dl-icon-sh">SH</div>
+        <span class="dl-platform dl-platform-unix">Linux / macOS / Termux</span>
+        <div class="dl-filename">setup.sh</div>
+        <div class="dl-size" id="shSize">&mdash;</div>
+        <div class="dl-actions">
+          <button class="btn btn-copy" id="btnCopySh" disabled>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button class="btn btn-dl" id="btnDownloadSh" disabled>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="tip-bar">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div><strong>Tip:</strong> Use <strong>Copy</strong> and paste into a new file to avoid the Windows security warning (Mark of the Web). Downloaded files may be blocked. Or right-click the file &rarr; Properties &rarr; <strong>Unblock</strong>.</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const EXCLUDE_FOLDERS = ['__pycache__','node_modules','.git','.venv','venv','.env','dist','build','.vs','.vscode','.idea','bin','obj'];
+const EXCLUDE_FILES = ['*.pyc','*.pyo','*.log','*.tmp','*.bak','Thumbs.db','.DS_Store'];
+const BINARY_EXT = new Set(['.png','.jpg','.jpeg','.gif','.ico','.bmp','.woff','.woff2','.ttf','.eot','.otf','.mp3','.mp4','.wav','.ogg','.webm','.avi','.zip','.tar','.gz','.7z','.rar','.pdf','.doc','.docx','.xls','.xlsx','.exe','.dll','.so','.dylib','.bin','.dat','.db','.sqlite']);
+
+let dirHandle = null, scannedFiles = [], ps1Blob = null, shBlob = null, ps1Text = '', shText = '';
+
+const $ = id => document.getElementById(id);
+const dropZone = $('dropZone'), selPath = $('selectedPath'), selPathText = $('selectedPathText');
+const btnGen = $('btnGenerate'), progCard = $('progressCard'), progBar = $('progressBar'), progText = $('progressText');
+const statsCard = $('statsCard'), logCard = $('logCard'), logOut = $('logOutput'), dlCard = $('downloadCard');
+const btnDlPs1 = $('btnDownloadPs1'), btnDlSh = $('btnDownloadSh'), btnCpPs1 = $('btnCopyPs1'), btnCpSh = $('btnCopySh');
+
+function fmtSize(b) { if (b >= 1048576) return (b/1048576).toFixed(2)+' MB'; if (b >= 1024) return (b/1024).toFixed(2)+' KB'; return b+' B'; }
+function ext(n) { const d = n.lastIndexOf('.'); return d >= 0 ? n.substring(d).toLowerCase() : ''; }
+function isBin(p) { return BINARY_EXT.has(ext(p)); }
+function globMatch(n, pat) { return new RegExp('^'+pat.replace(/\./g,'\\.').replace(/\*/g,'.*').replace(/\?/g,'.')+'$','i').test(n); }
+function shouldSkip(rel, fname, sz, maxSz, extra) {
+  for (const p of rel.split('/')) if (EXCLUDE_FOLDERS.includes(p)) return true;
+  for (const pat of [...EXCLUDE_FILES, ...extra]) if (globMatch(fname, pat) || globMatch(rel, pat)) return true;
+  return sz > maxSz;
+}
+function ab2b64(buf) { const u8 = new Uint8Array(buf); let s = ''; for (let i=0;i<u8.length;i+=8192) s += String.fromCharCode.apply(null, u8.subarray(i,i+8192)); return btoa(s); }
+function log(msg, cls='l-info') { const s = document.createElement('span'); s.className = cls; s.textContent = msg+'\n'; logOut.appendChild(s); logOut.scrollTop = logOut.scrollHeight; }
+function ts() { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0'); }
+
+async function scanDir(h, base='') {
+  const files = [];
+  for await (const e of h.values()) {
+    const p = base ? base+'/'+e.name : e.name;
+    if (e.kind === 'directory') { if (!EXCLUDE_FOLDERS.includes(e.name)) files.push(...await scanDir(e, p)); }
+    else files.push({ path: p, name: e.name, handle: e });
+  }
+  return files;
+}
+
+const hasPicker = 'showDirectoryPicker' in window;
+if (!hasPicker) $('browserNotice').classList.add('visible');
+
+dropZone.addEventListener('click', async () => {
+  if (!hasPicker) return;
+  try { dirHandle = await window.showDirectoryPicker({mode:'read'}); selPathText.textContent = dirHandle.name; selPath.classList.add('visible'); $('projectName').placeholder = dirHandle.name; btnGen.disabled = false; } catch {}
+});
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', async e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  for (const item of [...e.dataTransfer.items]) {
+    if (item.kind === 'file') { const h = await item.getAsFileSystemHandle(); if (h && h.kind === 'directory') { dirHandle = h; selPathText.textContent = dirHandle.name; selPath.classList.add('visible'); $('projectName').placeholder = dirHandle.name; btnGen.disabled = false; return; } }
+  }
+});
+
+btnGen.addEventListener('click', async () => {
+  if (!dirHandle) return;
+  logOut.innerHTML = ''; logCard.style.display = 'block'; statsCard.style.display = 'none'; dlCard.style.display = 'none';
+  progCard.classList.add('visible'); progBar.style.width = '0%';
+  document.querySelector('#progressCard .spinner').style.display = '';
+  document.querySelector('#progressCard .card-label').textContent = 'Processing';
+  document.querySelector('#progressCard .card-icon').classList.remove('card-icon-green');
+  document.querySelector('#progressCard .card-icon').classList.add('card-icon-cyan');
+  btnGen.disabled = true; btnGen.textContent = 'Generating\u2026';
+  [btnDlPs1, btnDlSh, btnCpPs1, btnCpSh].forEach(b => b.disabled = true);
+  ps1Blob = shBlob = null; ps1Text = shText = '';
+
+  const projName = $('projectName').value.trim() || dirHandle.name;
+  const maxSz = (parseFloat($('maxSize').value)||10)*1048576;
+  const extra = $('excludePatterns').value.split('\n').map(s=>s.trim()).filter(Boolean);
+
+  try {
+    log('=== Scanning: '+dirHandle.name+' ===', 'l-hl');
+    progText.textContent = 'Scanning directory\u2026'; progBar.style.width = '10%';
+    const entries = await scanDir(dirHandle);
+    log('  Found '+entries.length+' entries', 'l-info');
+
+    scannedFiles = []; let skipped=0, textN=0, binN=0, totalSz=0;
+    progText.textContent = 'Reading files\u2026';
+    for (let i=0; i<entries.length; i++) {
+      const e = entries[i];
+      progBar.style.width = (10+Math.round(i/entries.length*40))+'%';
+      if (shouldSkip(e.path, e.name, 0, maxSz, extra)) { skipped++; continue; }
+      const file = await e.handle.getFile();
+      if (file.size > maxSz) { skipped++; continue; }
+      const content = await file.arrayBuffer();
+      const binary = isBin(e.path);
+      scannedFiles.push({ path: e.path, isBinary: binary, content, size: file.size });
+      if (binary) binN++; else textN++;
+      totalSz += file.size;
+      if (i%50===0) await new Promise(r=>setTimeout(r,0));
+    }
+
+    $('statTotal').textContent = scannedFiles.length;
+    $('statText').textContent = textN;
+    $('statBinary').textContent = binN;
+    $('statSize').textContent = fmtSize(totalSz);
+    $('statSkipped').textContent = skipped;
+    statsCard.style.display = 'block'; statsCard.classList.add('reveal');
+
+    log('  Included: '+scannedFiles.length+' ('+textN+' text, '+binN+' binary)', 'l-ok');
+    log('  Skipped : '+skipped, 'l-info');
+    log('  Size    : '+fmtSize(totalSz), 'l-info');
+    log('', 'l-info');
+
+    if (!scannedFiles.length) { log('[WARN] No files to process.', 'l-warn'); return; }
+
+    const dirs = new Set();
+    for (const f of scannedFiles) { const p=f.path.split('/'); for (let i=1;i<p.length;i++) dirs.add(p.slice(0,i).join('/')); }
+    const sortedDirs = [...dirs].sort();
+
+    // Generate setup.ps1
+    progText.textContent = 'Generating setup.ps1\u2026'; progBar.style.width = '55%';
+    log('Generating setup.ps1 \u2026', 'l-hl');
+
+    let ps = '# setup.ps1 - Auto-generated project setup for Windows (PowerShell 5.1+)\r\n';
+    ps += '# Project: '+projName+'\r\n# Generated: '+ts()+'\r\n';
+    ps += '# Files: '+scannedFiles.length+' | Size: '+fmtSize(totalSz)+'\r\n#\r\n';
+    ps += '# Usage: powershell -ExecutionPolicy Bypass -File setup.ps1\r\n\r\n';
+    ps += '$root = Join-Path $PSScriptRoot "'+projName+'"\r\n';
+    ps += 'Write-Host "`nSetting up project: '+projName+'" -ForegroundColor Cyan\r\nWrite-Host "Target: $root`n"\r\n\r\n';
+    ps += '# --- Create directories ---\r\nNew-Item -ItemType Directory -Path $root -Force | Out-Null\r\n';
+    for (const d of sortedDirs) ps += 'New-Item -ItemType Directory -Path (Join-Path $root "'+d.replace(/\//g,'\\')+'" ) -Force | Out-Null\r\n';
+    ps += '\r\n# --- Helper ---\r\nfunction Format-Size([long]$bytes) {\r\n    if ($bytes -ge 1MB) { return "{0:N2} MB" -f ($bytes / 1MB) }\r\n    if ($bytes -ge 1KB) { return "{0:N2} KB" -f ($bytes / 1KB) }\r\n    return "$bytes B"\r\n}\r\n\r\n';
+    ps += '# --- Create files ---\r\n$fileCount = 0\r\n$totalBytes = [long]0\r\n\r\n';
+
+    for (let i=0; i<scannedFiles.length; i++) {
+      const f = scannedFiles[i], b64 = ab2b64(f.content), wr = f.path.replace(/\//g,'\\');
+      ps += '# File: '+f.path+'\r\n$b = [Convert]::FromBase64String("'+b64+'")\r\n';
+      ps += '$p = Join-Path $root "'+wr+'"\r\n[System.IO.File]::WriteAllBytes($p, $b)\r\n';
+      ps += 'Write-Host "  Created: '+f.path+' ($(Format-Size $b.Length))"\r\n$fileCount++\r\n$totalBytes += $b.Length\r\n\r\n';
+      if (i%20===0) { progBar.style.width = (55+Math.round(i/scannedFiles.length*20))+'%'; await new Promise(r=>setTimeout(r,0)); }
+    }
+
+    ps += '# --- Summary ---\r\nWrite-Host "`n=== Setup complete ===" -ForegroundColor Green\r\n';
+    ps += 'Write-Host "  Project : '+projName+'"\r\nWrite-Host "  Files   : $fileCount"\r\n';
+    ps += 'Write-Host "  Size    : $(Format-Size $totalBytes)"\r\nWrite-Host "  Location: $root`n"\r\n';
+
+    ps1Text = ps; ps1Blob = new Blob([ps], {type:'text/plain'});
+    log('  => setup.ps1: '+fmtSize(ps1Blob.size), 'l-ok');
+
+    // Generate setup.sh
+    progText.textContent = 'Generating setup.sh\u2026'; progBar.style.width = '78%';
+    log('Generating setup.sh \u2026', 'l-hl');
+
+    let sh = '#!/bin/bash\n# setup.sh - Auto-generated project setup for Termux / Linux / macOS\n';
+    sh += '# Project: '+projName+'\n# Generated: '+ts()+'\n';
+    sh += '# Files: '+scannedFiles.length+' | Size: '+fmtSize(totalSz)+'\n#\n# Usage: bash setup.sh\n\n';
+    sh += 'SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"\nROOT="$SCRIPT_DIR/'+projName+'"\n\n';
+    sh += 'echo ""\necho "Setting up project: '+projName+'"\necho "Target: $ROOT"\necho ""\n\n';
+    sh += '# --- Create directories ---\nmkdir -p "$ROOT"\n';
+    for (const d of sortedDirs) sh += 'mkdir -p "$ROOT/'+d+'"\n';
+    sh += '\n# --- Create files ---\nFILE_COUNT=0\nTOTAL_BYTES=0\n\n';
+
+    const dec = new TextDecoder('utf-8', {fatal:false});
+    let eofIdx = 0;
+
+    for (let i=0; i<scannedFiles.length; i++) {
+      const f = scannedFiles[i];
+      sh += '# File: '+f.path+'\n';
+      if (f.isBinary) {
+        sh += 'echo "  Creating: '+f.path+' (binary)"\nprintf \'%s\' \''+ab2b64(f.content)+'\' | base64 -d > "$ROOT/'+f.path+'"\n';
+      } else {
+        const txt = dec.decode(f.content);
+        eofIdx++; let mk = 'SETUPEOF_'+eofIdx;
+        while (txt.includes(mk)) { eofIdx++; mk = 'SETUPEOF_'+eofIdx; }
+        sh += 'echo "  Creating: '+f.path+'"\ncat << \''+mk+'\' > "$ROOT/'+f.path+'"\n';
+        sh += txt; if (!txt.endsWith('\n')) sh += '\n'; sh += mk+'\n';
+      }
+      sh += 'FILE_COUNT=$((FILE_COUNT + 1))\nTOTAL_BYTES=$((TOTAL_BYTES + '+f.size+'))\n\n';
+      if (i%20===0) { progBar.style.width = (78+Math.round(i/scannedFiles.length*18))+'%'; await new Promise(r=>setTimeout(r,0)); }
+    }
+
+    sh += '# --- Summary ---\nformat_size() {\n    local bytes=$1\n';
+    sh += '    if [ "$bytes" -ge 1048576 ]; then\n        echo "$(awk "BEGIN {printf \\"%.2f MB\\", $bytes/1048576}")"\n';
+    sh += '    elif [ "$bytes" -ge 1024 ]; then\n        echo "$(awk "BEGIN {printf \\"%.2f KB\\", $bytes/1024}")"\n';
+    sh += '    else\n        echo "${bytes} B"\n    fi\n}\n\n';
+    sh += 'echo ""\necho "=== Setup complete ==="\necho "  Project : '+projName+'"\n';
+    sh += 'echo "  Files   : $FILE_COUNT"\necho "  Size    : $(format_size $TOTAL_BYTES)"\necho "  Location: $ROOT"\necho ""\n';
+
+    shText = sh; shBlob = new Blob([sh], {type:'text/plain'});
+    log('  => setup.sh:  '+fmtSize(shBlob.size), 'l-ok');
+    log('', 'l-info');
+
+    if (ps1Blob.size > 5242880) log('[WARN] setup.ps1 is '+fmtSize(ps1Blob.size)+' \u2014 may exceed Google Docs limits.', 'l-warn');
+    if (shBlob.size > 5242880) log('[WARN] setup.sh is '+fmtSize(shBlob.size)+' \u2014 may exceed Google Docs limits.', 'l-warn');
+    log('=== Done ===', 'l-ok');
+
+    progBar.style.width = '100%'; progText.textContent = 'Complete!';
+    document.querySelector('#progressCard .spinner').style.display = 'none';
+    document.querySelector('#progressCard .card-label').textContent = 'Complete';
+    document.querySelector('#progressCard .card-icon').classList.remove('card-icon-cyan');
+    document.querySelector('#progressCard .card-icon').classList.add('card-icon-green');
+    $('ps1Size').textContent = fmtSize(ps1Blob.size);
+    $('shSize').textContent = fmtSize(shBlob.size);
+    dlCard.style.display = 'block'; dlCard.classList.add('reveal');
+    [btnDlPs1, btnDlSh, btnCpPs1, btnCpSh].forEach(b => b.disabled = false);
+  } catch (err) { log('[ERROR] '+err.message, 'l-err'); } finally {
+    btnGen.disabled = false;
+    btnGen.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Generate Setup Files';
+  }
+});
+
+function download(blob, name) { const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+btnDlPs1.addEventListener('click', () => { if (ps1Blob) download(ps1Blob, 'setup.ps1'); });
+btnDlSh.addEventListener('click', () => { if (shBlob) download(shBlob, 'setup.sh'); });
+
+async function copyText(text, btn) {
+  try { await navigator.clipboard.writeText(text); } catch { const ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+  const orig = btn.innerHTML;
+  btn.classList.add('copied');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+  setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+}
+
+btnCpPs1.addEventListener('click', () => { if (ps1Text) copyText(ps1Text, btnCpPs1); });
+btnCpSh.addEventListener('click', () => { if (shText) copyText(shText, btnCpSh); });
+
+// Help modal
+const helpOverlay = $('helpOverlay');
+$('helpBtn').addEventListener('click', () => helpOverlay.classList.add('visible'));
+$('helpClose').addEventListener('click', () => helpOverlay.classList.remove('visible'));
+helpOverlay.addEventListener('click', (e) => { if (e.target === helpOverlay) helpOverlay.classList.remove('visible'); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') helpOverlay.classList.remove('visible'); });
+</script>
+</body>
+</html>
